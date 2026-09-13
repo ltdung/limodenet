@@ -1,0 +1,14 @@
+torch>=2.0
+torchvision>=0.15
+Pillow
+numpy
+
+# optional, only needed for spiking conversion (limodenet.snn / snn_recon,
+# scripts/convert_to_spiking.py):
+# snntorch>=0.7
+
+# optional, only needed for scripts/download_weights.py:
+# huggingface_hub>=0.20
+
+# optional, only needed for the Gradio demo (demo/app.py):
+# gradio>=4.0

@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "limodenet"
+version = "1.0.0"
+description = "LIMODENet: an information-preserving, softmax-/QKV-free backbone for restoring channel-degraded satellite imagery under a neuromorphic-deployment constraint."
+readme = "README.md"
+license = { text = "MIT" }
+requires-python = ">=3.9"
+dependencies = [
+    "torch>=2.0",
+    "torchvision>=0.15",
+    "Pillow",
+    "numpy",
+]
+
+[project.optional-dependencies]
+spiking = ["snntorch>=0.7"]
+hub = ["huggingface_hub>=0.20"]
+demo = ["gradio>=4.0"]
+
+[tool.setuptools.packages.find]
+include = ["limodenet*"]

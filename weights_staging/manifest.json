@@ -1,0 +1,38 @@
+{
+  "limodenet-ae-1db100q.pth": {
+    "sha256": "5f1ceee10ca8cc5f94492f33aa0224d82de5abd75f879f93904e321540a90fb2",
+    "bytes": 3110266
+  },
+  "limodenet-base-eurosat.pth": {
+    "sha256": "054fd9595b90a5d7e11973049b4649ce548a7df438311fdffea42a0dd37bb012",
+    "bytes": 10955184
+  },
+  "limodenet-big-eurosat-tinft.pth": {
+    "sha256": "3a7a6e63ae8f8698ec5b08e0649ce6b67bc933256a796cb8e33065ebdcd9c3ff",
+    "bytes": 23235954
+  },
+  "limodenet-nano-eurosat.pth": {
+    "sha256": "ad8906708899369b0014040eb6f848a5c8853b5691888412568775c38d8394d4",
+    "bytes": 1604656
+  },
+  "limodenet-skip-ae-1db100q.pth": {
+    "sha256": "0728d890b728e38c25ad3073e4620c8c7d2b7758eab4bb5fac0b9fb1f7e35015",
+    "bytes": 3151794
+  },
+  "limodenet-small-eurosat.pth": {
+    "sha256": "c28fe534a475ca4e879a4e6a98f2be9de6c41d9549e6cb6ba555b80accfd4b7f",
+    "bytes": 6207350
+  },
+  "limodenet-spiking-classifier-t8.pth": {
+    "sha256": "9c534ae25ac6f02645188d57cbc5230bbd948464a76d8556eb0738cff7f41ae8",
+    "bytes": 2820512
+  },
+  "limodenet-spiking-skip-recon-t8.pth": {
+    "sha256": "126f79774f220770068d1fcb263ceb9eb31b18a3b3fe29dc0abc7d32f73bff2d",
+    "bytes": 3161362
+  },
+  "limodenet-tiny-eurosat-tinft.pth": {
+    "sha256": "1ab077ed1557e7a34acdf9ad1bcd5bc5a1af08578e54649847058b1c3bc5b816",
+    "bytes": 2802922
+  }
+}

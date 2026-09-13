@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+dist/
+.ipynb_checkpoints/
+
+# downloaded/trained weights -- released separately on HuggingFace, not in git
+weights/
+*.pth
+*.pt
+# weights_staging/ keeps its .py/.md/.json helpers in git; the checkpoints
+# themselves are pushed to HuggingFace via upload_to_hf.py, never committed here
+
+# local data
+data/
+outputs/
