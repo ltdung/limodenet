@@ -19,7 +19,7 @@ pipeline_tag: image-to-image
 <h3 align="center">Attention-Free Compact Encoders for Information-Preserving<br>Onboard Satellite Image Restoration</h3>
 
 <p align="center">
-  <a href="https://arxiv.org/abs/ARXIV_ID">Paper (arXiv)</a> ·
+  <a href="https://arxiv.org/abs/2609.14690">Paper (arXiv)</a> ·
   <a href="https://github.com/ltdung/limodenet">Code (GitHub)</a>
 </p>
 
@@ -102,11 +102,12 @@ license.
 ## Citation
 
 ```bibtex
-@inproceedings{le2027limodenet,
-  title     = {LIMODENet: Attention-Free Compact Encoders for Information-Preserving Onboard Satellite Image Restoration},
-  author    = {Le, Thanh Dung and and Ha, Vu Nguyen and
-               Nguyen, Ti Ti and Chatzinotas, Symeon},
-  year      = {2027},
-  notes     = {Under review}
+@article{le2026limodenet,
+  title   = {LIMODENet: Attention-Free Compact Encoders for Information-Preserving
+             Onboard Satellite Image Restoration},
+  author  = {Le, Thanh-Dung and Ha, Vu Nguyen and
+             Nguyen, Ti Ti and Chatzinotas, Symeon},
+  journal = {arXiv preprint arXiv:2609.14690},
+  year    = {2026}
 }
 ```

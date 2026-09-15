@@ -5,7 +5,7 @@
 <h3 align="center">Attention-Free Compact Encoders for Information-Preserving<br>Onboard Satellite Image Restoration</h3>
 
 <p align="center">
-  <a href="https://arxiv.org/abs/ARXIV_ID">Paper (arXiv)</a> ·
+  <a href="https://arxiv.org/abs/2609.14690">Paper (arXiv)</a> ·
   <a href="https://huggingface.co/ltdung/limodenet">Weights (HuggingFace)</a> ·
   <a href="#citation">Citation</a>
 </p>
@@ -187,7 +187,7 @@ fully reproducible with public tools — see `docs/REPRODUCING.md`.
              Onboard Satellite Image Restoration},
   author  = {Le, Thanh-Dung and Ha, Vu Nguyen and
              Nguyen, Ti Ti and Chatzinotas, Symeon},
-  journal = {arXiv preprint arXiv:ARXIV_ID},
+  journal = {arXiv preprint arXiv:2609.14690},
   year    = {2026}
 }
 ```
