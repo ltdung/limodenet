@@ -20,7 +20,8 @@ pipeline_tag: image-to-image
 
 <p align="center">
   <a href="https://arxiv.org/abs/2609.14690">Paper (arXiv)</a> ·
-  <a href="https://github.com/ltdung/limodenet">Code (GitHub)</a>
+  <a href="https://github.com/ltdung/limodenet">Code (GitHub)</a> ·
+  <a href="https://github.com/ltdung/SnT-SENTRY">SENTRY project</a>
 </p>
 
 <p align="center">
@@ -98,6 +99,14 @@ model.load_state_dict(torch.load("limodenet-spiking-skip-recon-t8.pth"))
 Weights: **CC-BY-NC-4.0** (non-commercial). Code: MIT. See the GitHub repo's
 `WEIGHTS_LICENSE.md` for details, or contact the authors for a commercial
 license.
+
+## Part of the SENTRY project
+
+LIMODENet is the foundational task of **SENTRY**, a project of the SIGCOM group
+at SnT, University of Luxembourg, funded by the Luxembourg National Research
+Fund (FNR), combining satellite communication networks with machine learning for
+Earth observation. Other tasks:
+[github.com/ltdung/SnT-SENTRY](https://github.com/ltdung/SnT-SENTRY)
 
 ## Citation
 

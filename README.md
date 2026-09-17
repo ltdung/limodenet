@@ -7,7 +7,8 @@
 <p align="center">
   <a href="https://arxiv.org/abs/2609.14690">Paper (arXiv)</a> ·
   <a href="https://huggingface.co/ltdung/limodenet">Weights (HuggingFace)</a> ·
-  <a href="#citation">Citation</a>
+  <a href="#citation">Citation</a> ·
+  <a href="https://github.com/ltdung/SnT-SENTRY">SENTRY project</a>
 </p>
 
 <p align="center">
@@ -178,6 +179,22 @@ publicly released; `scripts/train_reconstructor.py` expects paired
 channel/compression simulator to reproduce the DVB-S2X numbers exactly. The
 paper's second-corpus check (ImageNet-C corruptions on PatternNet) *is*
 fully reproducible with public tools — see `docs/REPRODUCING.md`.
+
+## Part of the SENTRY project
+
+LIMODENet is the foundational task (Task 0) of **SENTRY**, a research project of
+the [SIGCOM](https://www.uni.lu/snt-en/research-groups/sigcom/) group at the
+Interdisciplinary Centre for Security, Reliability and Trust (SnT), University
+of Luxembourg, funded by the Luxembourg National Research Fund (FNR). SENTRY
+combines advanced satellite communication networks with machine learning to
+make Earth-observation systems more efficient.
+
+The umbrella repository collects the project's other tasks — Vision
+Transformers for onboard classification, semantic knowledge distillation,
+adaptive attention for lightweight networks, integrated sensing/computation/
+communication, and semantic loss modelling for imagery transmission:
+
+**➤ [github.com/ltdung/SnT-SENTRY](https://github.com/ltdung/SnT-SENTRY)**
 
 ## Citation
 
