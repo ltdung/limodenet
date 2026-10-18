@@ -14,7 +14,7 @@
 <p align="center">
   <a href="https://huggingface.co/spaces/ltdung/limodenet-demo"><img src="https://huggingface.co/datasets/huggingface/badges/resolve/main/open-in-hf-spaces-lg.svg" alt="Open the interactive demo in HuggingFace Spaces"></a>
   &nbsp;
-  <a href="https://ltdung.github.io/limodenet/demo/spiking_dynamics.html"><img src="https://img.shields.io/badge/%E2%96%B6%20Watch%20the%20spiking%20network-live%20page-c2410c?style=for-the-badge" alt="Watch the spiking network: live page"></a>
+  <a href="https://ltdung-limodenet-demo.static.hf.space/spiking_dynamics.html"><img src="https://img.shields.io/badge/%E2%96%B6%20Watch%20the%20spiking%20network-live%20page-c2410c?style=for-the-badge" alt="Watch the spiking network: live page"></a>
 </p>
 <p align="center"><sub>No install needed: both open in your browser.</sub></p>
 
@@ -122,16 +122,16 @@ python scripts/download_weights.py                  # everything, into weights/
 
 ## Demo: check the paper's claims yourself
 
-### ▶ [Watch the spiking network restore an image](https://ltdung.github.io/limodenet/demo/spiking_dynamics.html)
+### ▶ [Watch the spiking network restore an image](https://ltdung-limodenet-demo.static.hf.space/spiking_dynamics.html)
 
 <p align="center">
-  <a href="https://ltdung.github.io/limodenet/demo/spiking_dynamics.html"><img src="assets/spiking_dynamics.gif" alt="Spiking LIMODENet restoring a 1 dB image over 8 timesteps while activity spreads through its layers" width="88%"></a>
+  <a href="https://ltdung-limodenet-demo.static.hf.space/spiking_dynamics.html"><img src="assets/spiking_dynamics.gif" alt="Spiking LIMODENet restoring a 1 dB image over 8 timesteps while activity spreads through its layers" width="88%"></a>
 </p>
 
 The trained spiking LIMODENet-skip, replayed from activity recorded on real 1 dB
 test images. One timestep alone is worse than the input; as spikes reach the
 deep layers, eight timesteps recover most of the non-spiking network's quality.
-The [live page](https://ltdung.github.io/limodenet/demo/spiking_dynamics.html) adds spike maps, single-neuron rasters and membrane potentials.
+The [live page](https://ltdung-limodenet-demo.static.hf.space/spiking_dynamics.html) adds spike maps, single-neuron rasters and membrane potentials.
 
 ### ▶ [Try the interactive demo on HuggingFace Spaces](https://huggingface.co/spaces/ltdung/limodenet-demo)
 
@@ -144,8 +144,7 @@ paper side by side, with PSNR, SSIM and error maps. The other tabs show the
 spiking-conversion audit (**0 / 24 / 22 blocked operations**) and measure
 latency on your device. It runs **entirely in your browser**, with no install
 and no server: the models are ONNX exports of the released checkpoints,
-checked against PyTorch (identical PSNR/SSIM on all 30 samples). The same page
-is also at [ltdung.github.io/limodenet/demo](https://ltdung.github.io/limodenet/demo/).
+checked against PyTorch (identical PSNR/SSIM on all 30 samples).
 
 ### Run it locally
 

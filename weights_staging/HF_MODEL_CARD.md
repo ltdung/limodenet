@@ -27,7 +27,7 @@ pipeline_tag: image-to-image
 <p align="center">
   <a href="https://huggingface.co/spaces/ltdung/limodenet-demo"><img src="https://huggingface.co/datasets/huggingface/badges/resolve/main/open-in-hf-spaces-lg.svg" alt="Open the interactive demo in HuggingFace Spaces"></a>
   &nbsp;
-  <a href="https://ltdung.github.io/limodenet/demo/spiking_dynamics.html"><img src="https://img.shields.io/badge/%E2%96%B6%20Watch%20the%20spiking%20network-live%20page-c2410c?style=for-the-badge" alt="Watch the spiking network: live page"></a>
+  <a href="https://ltdung-limodenet-demo.static.hf.space/spiking_dynamics.html"><img src="https://img.shields.io/badge/%E2%96%B6%20Watch%20the%20spiking%20network-live%20page-c2410c?style=for-the-badge" alt="Watch the spiking network: live page"></a>
 </p>
 
 <p align="center">
@@ -61,9 +61,9 @@ restored = model(degraded_images)   # (N, 3, 128, 128), values in [0, 1]
 ## ▶ Try it
 
 - **[Interactive demo (Space)](https://huggingface.co/spaces/ltdung/limodenet-demo)**: compare eight restorers on real 1 dB DVB-S2X images, run the spiking-conversion audit, measure the budget.
-- **[Watch the spiking network](https://ltdung.github.io/limodenet/demo/spiking_dynamics.html)**: spikes, membrane potentials and the restoration building up over 8 timesteps, recorded from `limodenet-spiking-skip-recon-t8.pth`.
+- **[Watch the spiking network](https://ltdung-limodenet-demo.static.hf.space/spiking_dynamics.html)**: spikes, membrane potentials and the restoration building up over 8 timesteps, recorded from `limodenet-spiking-skip-recon-t8.pth`.
 
-<p align="center"><a href="https://ltdung.github.io/limodenet/demo/spiking_dynamics.html"><img src="https://huggingface.co/ltdung/limodenet/resolve/main/assets/spiking_dynamics.gif" width="88%" alt="Spiking LIMODENet restoring a 1 dB image over 8 timesteps"></a></p>
+<p align="center"><a href="https://ltdung-limodenet-demo.static.hf.space/spiking_dynamics.html"><img src="https://huggingface.co/ltdung/limodenet/resolve/main/assets/spiking_dynamics.gif" width="88%" alt="Spiking LIMODENet restoring a 1 dB image over 8 timesteps"></a></p>
 
 ## Checkpoints
 
