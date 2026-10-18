@@ -39,43 +39,19 @@ ROOT = os.path.abspath(os.path.join(DEMO, ".."))
 sys.path.insert(0, ROOT)
 sys.path.insert(0, DEMO)
 
-from limodenet.baselines import build_baseline    # noqa: E402
-from limodenet.recon import build_recon            # noqa: E402
 import audit as A                                  # noqa: E402
 
 DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 WEIGHTS = os.environ.get("LIMODENET_WEIGHTS", os.path.join(ROOT, "weights"))
 SAMPLES = os.path.join(DEMO, "samples")
 REPO_ID = "ltdung/limodenet"
+DYN_HTML = os.path.join(DEMO, "spiking_dynamics.html")
+DYN_DATA = os.path.join(DEMO, "spiking_dynamics_data.js")
+# serve exactly these two files (not the whole folder) so tab 4 can embed the page
+gr.set_static_paths([DYN_HTML, DYN_DATA])
 
 
-def _spiking():
-    from limodenet.snn_recon import SpikingLIMODENetSkipRecon
-    return SpikingLIMODENetSkipRecon(T=8)
-
-
-# Display order follows the paper: constrained peers, LIMODENet, then the
-# unconstrained modern restorers. `audit` names the row in demo/audit.py.
-MODELS = {
-    "CNN-AE":           dict(file="baseline-cnn-ae-1db100q.pth", build=lambda: build_baseline("cnn"),
-                             role="bottleneck peer"),
-    "U-Net":            dict(file="baseline-unet-1db100q.pth", build=lambda: build_baseline("unet"),
-                             role="skip-connection reference"),
-    "DnCNN":            dict(file="baseline-dncnn-1db100q.pth", build=lambda: build_baseline("dncnn"),
-                             role="residual denoiser"),
-    "LIMODENet-AE":     dict(file="limodenet-ae-1db100q-60ep.pth", build=lambda: build_recon("limodenet"),
-                             role="ours", audit="LIMODENet-AE"),
-    "LIMODENet-skip":   dict(file="limodenet-skip-ae-1db100q.pth", build=lambda: build_recon("limodenet_skip"),
-                             role="ours + additive skips", audit="LIMODENet-skip"),
-    "Spiking LIMODENet-skip (T=8)": dict(file="limodenet-spiking-skip-recon-t8.pth", build=_spiking,
-                             role="ours, end-to-end spiking", audit="LIMODENet-skip"),
-    "NAFNet-lite":      dict(file="baseline-nafnet-lite-1db100q.pth", build=lambda: build_baseline("nafnet"),
-                             role="modern, unconstrained", audit="NAFNet-lite"),
-    "Restormer-lite":   dict(file="baseline-restormer-lite-1db100q.pth", build=lambda: build_baseline("restormer"),
-                             role="modern, unconstrained", audit="Restormer-lite"),
-}
-DEFAULT_MODELS = ["CNN-AE", "U-Net", "LIMODENet-AE", "LIMODENet-skip",
-                  "Spiking LIMODENet-skip (T=8)", "NAFNet-lite"]
+from registry import DEFAULT_MODELS, MODELS        # noqa: E402
 
 _LOADED, _ERRORS = {}, {}
 
@@ -362,10 +338,15 @@ with gr.Blocks(title="LIMODENet demo") as demo:
         go_budget.click(budget, None, [budget_tab])
 
     with gr.Tab("4 · Spiking dynamics"):
+        # the page loads its data with a relative <script src>, which resolves to
+        # the second static file under the same /file= route
+        dyn_url = "/gradio_api/file=" + DYN_HTML.replace(os.sep, "/")
         gr.Markdown(
-            "To watch the spiking network work (spikes per layer, membrane potentials, and the restoration "
-            "building up over T=8 timesteps), open **`demo/spiking_dynamics.html`** in any browser. It is a "
-            "self-contained replay of activity recorded from the released spiking checkpoint and needs no server.")
+            "The trained spiking LIMODENet-skip at work: spikes per layer, membrane potentials, and the "
+            "restoration building up over T=8 timesteps, replayed from activity recorded on real 1 dB test "
+            f"images. Press **Play**. [Open it full-screen in a new tab]({dyn_url}).")
+        gr.HTML(f'<iframe src="{dyn_url}" title="Spiking LIMODENet dynamics" '
+                'style="width:100%;height:1500px;border:0;border-radius:8px"></iframe>')
 
 if __name__ == "__main__":
     demo.launch()

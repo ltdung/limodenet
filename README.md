@@ -12,6 +12,13 @@
 </p>
 
 <p align="center">
+  <a href="https://huggingface.co/spaces/ltdung/limodenet-demo"><img src="https://huggingface.co/datasets/huggingface/badges/resolve/main/open-in-hf-spaces-lg.svg" alt="Open the interactive demo in HuggingFace Spaces"></a>
+  &nbsp;
+  <a href="https://ltdung.github.io/limodenet/demo/spiking_dynamics.html"><img src="https://img.shields.io/badge/%E2%96%B6%20Watch%20the%20spiking%20network-live%20page-c2410c?style=for-the-badge" alt="Watch the spiking network: live page"></a>
+</p>
+<p align="center"><sub>No install needed: both open in your browser.</sub></p>
+
+<p align="center">
   <img src="assets/graphical_abstract.png" alt="LIMODENet at a glance: the problem, the result, and the diagnosed gap" width="100%">
 </p>
 
@@ -115,13 +122,38 @@ python scripts/download_weights.py                  # everything, into weights/
 
 ## Demo: check the paper's claims yourself
 
-Three ways in, from no install at all to the full app:
+### ▶ [Watch the spiking network restore an image](https://ltdung.github.io/limodenet/demo/spiking_dynamics.html)
 
-| | What it shows | How to run |
-|---|---|---|
-| **Spiking dynamics** | The trained spiking LIMODENet-skip restoring real 1 dB images, timestep by timestep: spike rates per layer, spike maps, single-neuron rasters and membrane potentials, and the output building up over T=8 | Open [`demo/spiking_dynamics.html`](demo/spiking_dynamics.html) in a browser (works offline) |
-| **Spiking audit** | Every op of LIMODENet, NAFNet-lite and Restormer-lite checked against the conversion rule: **0 / 24 / 22 blocked** | `python demo/audit.py` (no weights, no data, no GPU) |
-| **Interactive app** | All eight restorers from the paper side by side on real DVB-S2X test images, with PSNR/SSIM, error maps, and a parameter/mult-add/latency budget measured on your machine | `pip install -e ".[demo,hub,spiking]"` then `python demo/app.py` |
+<p align="center">
+  <a href="https://ltdung.github.io/limodenet/demo/spiking_dynamics.html"><img src="assets/spiking_dynamics.gif" alt="Spiking LIMODENet restoring a 1 dB image over 8 timesteps while activity spreads through its layers" width="88%"></a>
+</p>
+
+The trained spiking LIMODENet-skip, replayed from activity recorded on real 1 dB
+test images. One timestep alone is worse than the input; as spikes reach the
+deep layers, eight timesteps recover most of the non-spiking network's quality.
+The [live page](https://ltdung.github.io/limodenet/demo/spiking_dynamics.html) adds spike maps, single-neuron rasters and membrane potentials.
+
+### ▶ [Try the interactive demo on HuggingFace Spaces](https://huggingface.co/spaces/ltdung/limodenet-demo)
+
+<p align="center">
+  <a href="https://huggingface.co/spaces/ltdung/limodenet-demo"><img src="assets/demo_app.png" alt="The interactive demo: eight restorers side by side on a real 1 dB DVB-S2X test image, with PSNR, SSIM and spiking-legality" width="88%"></a>
+</p>
+
+Pick a real 1 dB DVB-S2X test image and compare all eight restorers from the
+paper side by side, with PSNR, SSIM and error maps. The other tabs show the
+spiking-conversion audit (**0 / 24 / 22 blocked operations**) and measure
+latency on your device. It runs **entirely in your browser**, with no install
+and no server: the models are ONNX exports of the released checkpoints,
+checked against PyTorch (identical PSNR/SSIM on all 30 samples). The same page
+is also at [ltdung.github.io/limodenet/demo](https://ltdung.github.io/limodenet/demo/).
+
+### Run it locally
+
+| | How to run |
+|---|---|
+| Spiking dynamics | Open [`demo/spiking_dynamics.html`](demo/spiking_dynamics.html) from a clone (works offline) |
+| Spiking audit | `python demo/audit.py` (no weights, no data, no GPU) |
+| Interactive app (PyTorch) | `pip install -e ".[demo,hub,spiking]"` then `python demo/app.py` (Gradio) |
 
 The app ships 30 real 1 dB/q100 test pairs (`demo/samples/`, three per class,
 seeded draw, not hand-picked) and downloads the checkpoints it needs from the
@@ -157,12 +189,16 @@ scripts/
 ├── evaluate.py
 └── download_weights.py
 demo/
-├── app.py                    # Gradio app: restore / spiking audit / budget
+├── index.html                # in-browser app (ONNX Runtime Web): the live demo
+├── web/                      # its data: 128 px samples + model metadata (generated)
+├── app.py                    # the same app in Gradio + PyTorch, for local use
+├── registry.py               # the eight restorers shown in both apps
 ├── audit.py                  # static spiking-conversion audit (CLI)
 ├── spiking_dynamics.html     # recorded spiking dynamics, open in any browser
 ├── spiking_dynamics_data.js  # its data (generated)
 ├── samples/                  # 30 real 1 dB/q100 DVB-S2X test pairs
-└── tools/                    # export_samples.py, record_spiking_dynamics.py
+└── tools/                    # export_samples.py, record_spiking_dynamics.py, export_web.py
+space/                        # static HuggingFace Space card + deploy_space.py
 docs/
 └── REPRODUCING.md    # maps each paper table/figure to a script + config
 ```

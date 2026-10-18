@@ -1,22 +1,23 @@
 #!/usr/bin/env python
 """
-One-time upload of the curated LIMODENet checkpoints (this directory) to a
-HuggingFace Hub model repo, along with the model card.
+Upload the curated LIMODENet checkpoints (this directory) to a HuggingFace
+Hub model repo, along with the model card.
 
 Setup (once):
     pip install huggingface_hub
-    huggingface-cli login          # paste a token with write access
+    hf auth login                  # paste a token with write access
 
 Usage:
     python upload_to_hf.py --repo-id ltdung/limodenet
 
-This creates the repo if it doesn't exist (public, model type) and uploads
-every *.pth in this directory, the assets/ images, and HF_MODEL_CARD.md
-as that repo's README.
-Re-running is safe -- it overwrites files with the same names.
+This creates the repo if it doesn't exist (public, model type) and uploads,
+in one commit: every *.pth in this directory, the ONNX exports in onnx/
+(used by the in-browser demo, built by demo/tools/export_web.py), the
+assets/ images, and HF_MODEL_CARD.md as that repo's README.
+Re-running is safe: files with the same names are overwritten, and files
+whose content has not changed are not sent again.
 """
 import argparse
-import glob
 import os
 
 
@@ -33,39 +34,17 @@ def main():
     create_repo(args.repo_id, repo_type="model", private=args.private, exist_ok=True)
 
     here = os.path.dirname(os.path.abspath(__file__))
-    ckpts = sorted(glob.glob(os.path.join(here, "*.pth")))
-    print(f"Found {len(ckpts)} checkpoints to upload:")
-    for c in ckpts:
-        print(f"  {os.path.basename(c)}")
-
-    for c in ckpts:
-        print(f"uploading {os.path.basename(c)} ...")
-        api.upload_file(
-            path_or_fileobj=c,
-            path_in_repo=os.path.basename(c),
-            repo_id=args.repo_id,
-            repo_type="model",
-        )
-
-    assets = sorted(glob.glob(os.path.join(here, "assets", "*")))
-    for a in assets:
-        print(f"uploading assets/{os.path.basename(a)} ...")
-        api.upload_file(
-            path_or_fileobj=a,
-            path_in_repo=f"assets/{os.path.basename(a)}",
-            repo_id=args.repo_id,
-            repo_type="model",
-        )
+    patterns = ["*.pth", "onnx/*.onnx", "assets/*"]
+    print(f"uploading {', '.join(patterns)} from {here} ...")
+    api.upload_folder(folder_path=here, repo_id=args.repo_id, repo_type="model",
+                      allow_patterns=patterns, commit_message="Update checkpoints and assets")
 
     card = os.path.join(here, "HF_MODEL_CARD.md")
     if os.path.exists(card):
         print("uploading model card as README.md ...")
-        api.upload_file(
-            path_or_fileobj=card,
-            path_in_repo="README.md",
-            repo_id=args.repo_id,
-            repo_type="model",
-        )
+        api.upload_file(path_or_fileobj=card, path_in_repo="README.md",
+                        repo_id=args.repo_id, repo_type="model",
+                        commit_message="Update model card")
 
     print(f"Done: https://huggingface.co/{args.repo_id}")
 

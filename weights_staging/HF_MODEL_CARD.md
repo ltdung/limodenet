@@ -25,6 +25,12 @@ pipeline_tag: image-to-image
 </p>
 
 <p align="center">
+  <a href="https://huggingface.co/spaces/ltdung/limodenet-demo"><img src="https://huggingface.co/datasets/huggingface/badges/resolve/main/open-in-hf-spaces-lg.svg" alt="Open the interactive demo in HuggingFace Spaces"></a>
+  &nbsp;
+  <a href="https://ltdung.github.io/limodenet/demo/spiking_dynamics.html"><img src="https://img.shields.io/badge/%E2%96%B6%20Watch%20the%20spiking%20network-live%20page-c2410c?style=for-the-badge" alt="Watch the spiking network: live page"></a>
+</p>
+
+<p align="center">
   <img src="assets/graphical_abstract.png" alt="LIMODENet at a glance" width="100%">
 </p>
 
@@ -51,6 +57,14 @@ model.load_state_dict(torch.load(path))
 restored = model(degraded_images)   # (N, 3, 128, 128), values in [0, 1]
 ```
 
+
+## ▶ Try it
+
+- **[Interactive demo (Space)](https://huggingface.co/spaces/ltdung/limodenet-demo)**: compare eight restorers on real 1 dB DVB-S2X images, run the spiking-conversion audit, measure the budget.
+- **[Watch the spiking network](https://ltdung.github.io/limodenet/demo/spiking_dynamics.html)**: spikes, membrane potentials and the restoration building up over 8 timesteps, recorded from `limodenet-spiking-skip-recon-t8.pth`.
+
+<p align="center"><a href="https://ltdung.github.io/limodenet/demo/spiking_dynamics.html"><img src="https://huggingface.co/ltdung/limodenet/resolve/main/assets/spiking_dynamics.gif" width="88%" alt="Spiking LIMODENet restoring a 1 dB image over 8 timesteps"></a></p>
+
 ## Checkpoints
 
 | File | Task | Params | Headline number |
@@ -75,6 +89,12 @@ All classification numbers are on EuroSAT (10-class RGB land-use). All
 restoration numbers are on 1 dB $E_s/N_0$, JPEG quality 100 DVB-S2X-degraded
 EuroSAT, three-seed mean ± std unless noted. `seed 0` of each 3-seed run is
 released; see the paper for the full 3-seed statistics.
+
+The `onnx/` folder holds ONNX exports of the eight restorers, used by the
+[in-browser demo](https://huggingface.co/spaces/ltdung/limodenet-demo). They
+are checked against these PyTorch checkpoints by `demo/tools/export_web.py`
+(identical PSNR/SSIM on the demo's 30 samples; the spiking model, whose spikes
+are sensitive to float rounding, agrees within 0.02 dB).
 
 ## Loading
 

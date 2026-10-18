@@ -1,0 +1,461 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>LIMODENet Interactive Demo</title>
+<meta name="description" content="Restore real 1 dB DVB-S2X-degraded satellite images with LIMODENet and seven comparison restorers, running entirely in your browser.">
+<style>
+:root {
+  --bg: #fafaf7; --surface: #ffffff; --surface-2: #f1f0ea; --ink: #1d1d1b; --ink-2: #55544f;
+  --ink-3: #8a8983; --line: #dddcd4; --accent: #c2410c; --accent-soft: #fde8dc; --graded: #2563a8;
+  --ok: #2f7d4f; --ok-soft: #e3f1e8; --bad: #b42318; --bad-soft: #fbe4e1;
+  --radius: 10px; --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #141412; --surface: #1d1d1a; --surface-2: #26261f; --ink: #ecebe4; --ink-2: #b4b3ab;
+    --ink-3: #7d7c75; --line: #34342d; --accent: #f97316; --accent-soft: #3a2314; --graded: #6aa6e8;
+    --ok: #5fbf86; --ok-soft: #17301f; --bad: #f87171; --bad-soft: #3a1717;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #141412; --surface: #1d1d1a; --surface-2: #26261f; --ink: #ecebe4; --ink-2: #b4b3ab;
+  --ink-3: #7d7c75; --line: #34342d; --accent: #f97316; --accent-soft: #3a2314; --graded: #6aa6e8;
+  --ok: #5fbf86; --ok-soft: #17301f; --bad: #f87171; --bad-soft: #3a1717;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body { background: var(--bg); color: var(--ink); font: 15px/1.55 var(--sans); }
+main { max-width: 1180px; margin: 0 auto; padding: 28px 16px 64px; }
+h1 { font-size: 26px; line-height: 1.25; margin: 0 0 8px; letter-spacing: -0.01em; }
+h2 { font-size: 18px; margin: 0 0 6px; }
+p { margin: 0 0 10px; }
+a { color: var(--graded); }
+.lede { color: var(--ink-2); max-width: 860px; }
+.note { font-size: 13px; color: var(--ink-3); }
+.links { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 14px; margin: 6px 0 4px; }
+.claims { margin: 12px 0 0; padding-left: 20px; max-width: 900px; }
+.claims li { margin-bottom: 4px; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px; margin-top: 16px; }
+code { font-family: var(--mono); font-size: 0.92em; }
+
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); margin-top: 22px; overflow-x: auto; }
+.tab { font: 600 14px var(--sans); color: var(--ink-2); background: none; border: 0; border-bottom: 2px solid transparent;
+       padding: 10px 14px; cursor: pointer; white-space: nowrap; }
+.tab[aria-selected="true"] { color: var(--accent); border-bottom-color: var(--accent); }
+.panel[hidden] { display: none; }
+
+button.btn { font: 600 14px var(--sans); color: var(--ink); background: var(--surface); border: 1px solid var(--line);
+             border-radius: 8px; padding: 8px 16px; cursor: pointer; }
+button.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button.btn:disabled { opacity: 0.55; cursor: wait; }
+.row { display: flex; flex-wrap: wrap; gap: 10px 18px; align-items: center; }
+
+.layout { display: grid; grid-template-columns: minmax(0, 330px) minmax(0, 1fr); gap: 18px; align-items: start; }
+.picker { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 5px; }
+.pick { padding: 0; border: 2px solid transparent; border-radius: 6px; background: none; cursor: pointer; line-height: 0; }
+.pick img { width: 100%; aspect-ratio: 1; border-radius: 4px; image-rendering: pixelated; }
+.pick[aria-pressed="true"] { border-color: var(--accent); }
+.checks { display: grid; gap: 4px; margin: 6px 0 10px; }
+.checks label { display: flex; gap: 8px; align-items: center; font-size: 14px; cursor: pointer; }
+.sel-info { font-size: 13px; color: var(--ink-2); margin: 8px 0; }
+
+.results { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 12px; }
+.res figure { margin: 0; }
+.res canvas { width: 100%; aspect-ratio: 1; image-rendering: pixelated; border-radius: 6px; border: 1px solid var(--line);
+              display: block; background: var(--surface-2); }
+.res figcaption { font-size: 13px; margin-top: 6px; line-height: 1.4; }
+.res .nm { font-weight: 600; }
+.res .mx { font-family: var(--mono); color: var(--ink-2); font-size: 12px; }
+.res input[type=range] { width: 100%; accent-color: var(--accent); }
+.badge { display: inline-block; font-size: 11px; font-weight: 600; padding: 0 7px; border-radius: 99px; margin-top: 3px; }
+.badge.ok { background: var(--ok-soft); color: var(--ok); }
+.badge.bad { background: var(--bad-soft); color: var(--bad); }
+.badge.na { background: var(--surface-2); color: var(--ink-3); }
+
+table { border-collapse: collapse; width: 100%; font-size: 14px; }
+th, td { text-align: left; padding: 7px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--ink-2); font-weight: 600; font-size: 13px; }
+td.num, th.num { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.tblwrap { overflow-x: auto; }
+tr.ours td:first-child { font-weight: 600; }
+.status { font-size: 13px; color: var(--ink-2); min-height: 20px; margin-top: 8px; }
+progress { width: 220px; accent-color: var(--accent); }
+details { margin-top: 10px; }
+summary { cursor: pointer; font-weight: 600; font-size: 14px; }
+.why { color: var(--ink-2); font-size: 13px; }
+iframe.dyn { width: 100%; height: 1600px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+@media (max-width: 860px) {
+  .layout { grid-template-columns: minmax(0, 1fr); }
+  .picker { grid-template-columns: repeat(10, minmax(0, 1fr)); }
+}
+@media (max-width: 520px) {
+  .picker { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .results { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+</style>
+</head>
+<body>
+<main>
+  <h1>LIMODENet: restoring channel-degraded satellite imagery under a spiking constraint</h1>
+  <div class="links">
+    <a href="https://arxiv.org/abs/2609.14690">Paper (arXiv)</a>
+    <a href="https://github.com/ltdung/limodenet">Code (GitHub)</a>
+    <a href="https://huggingface.co/ltdung/limodenet">Weights (HuggingFace)</a>
+    <a href="spiking_dynamics.html">Spiking dynamics page</a>
+  </div>
+  <p class="lede">Satellite images sent over a low-SNR DVB-S2X link at <b>1&nbsp;dB</b> arrive badly degraded. Every restorer here has
+    about 0.75–0.78M parameters and was trained under the same protocol on the same data. Use this page to check two claims from the paper:</p>
+  <ol class="claims">
+    <li><b>LIMODENet restores better than the CNN-AE and the U-Net at matched parameter count.</b> NAFNet-lite and Restormer-lite restore
+      better still. They are included so you can see that.</li>
+    <li><b>Only LIMODENet converts to a spiking network with zero blocked operations.</b> NAFNet-lite and Restormer-lite each have
+      more than 20.</li>
+  </ol>
+  <p class="note" style="margin-top:10px">Everything runs <b>in your browser</b> (ONNX Runtime Web, on the CPU). Each model is about 3&nbsp;MB and is
+    downloaded from the Hub the first time you use it. Numbers come from one seed (seed&nbsp;0) on the 30 shipped images; the paper reports three
+    seeds on the full test split, so expect small differences.</p>
+
+  <div class="tabs" role="tablist">
+    <button class="tab" role="tab" aria-selected="true" data-panel="p-restore">1 · Restore</button>
+    <button class="tab" role="tab" aria-selected="false" data-panel="p-audit">2 · Spiking audit</button>
+    <button class="tab" role="tab" aria-selected="false" data-panel="p-budget">3 · Budget</button>
+    <button class="tab" role="tab" aria-selected="false" data-panel="p-dyn">4 · Spiking dynamics</button>
+  </div>
+
+  <!-- ============ 1. Restore ============ -->
+  <section class="panel" id="p-restore" role="tabpanel">
+    <div class="layout">
+      <div class="card">
+        <h2>Input</h2>
+        <p class="note">Real 1&nbsp;dB/q100 DVB-S2X test images, three per class, drawn with a fixed seed (not hand-picked).</p>
+        <div class="picker" id="picker"></div>
+        <div class="sel-info" id="sel-info"></div>
+        <label class="note" style="display:block;margin-bottom:12px">…or upload your own degraded image:
+          <input type="file" id="upload" accept="image/*" style="display:block;margin-top:4px;max-width:100%"></label>
+        <h2 style="margin-top:6px">Restorers</h2>
+        <div class="checks" id="checks"></div>
+        <label class="checks" style="margin:0 0 12px"><span style="display:flex;gap:8px;align-items:center;font-size:14px">
+          <input type="checkbox" id="errmap"> Show error maps |output − clean| × 5 (bright = wrong)</span></label>
+        <button class="btn primary" id="run">Restore</button>
+        <div class="status" id="status"></div>
+      </div>
+      <div>
+        <div class="card">
+          <h2 id="res-title">Outputs</h2>
+          <div class="results" id="results"><p class="note">Pick an image and press <b>Restore</b>.</p></div>
+        </div>
+        <div class="card">
+          <h2>Score every shipped sample</h2>
+          <p class="note">Runs the selected restorers on all 30 images. PSNR is pooled over all pixels, as in the paper; SSIM is averaged over images.
+            Takes a minute or two in the browser.</p>
+          <div class="row"><button class="btn" id="scoreall">Score all 30 images</button><progress id="prog" max="1" value="0" hidden></progress></div>
+          <div class="tblwrap" style="margin-top:10px"><table id="scoretab"></table></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ 2. Audit ============ -->
+  <section class="panel" id="p-audit" role="tabpanel" hidden>
+    <div class="card">
+      <h2>Which operations block conversion to a spiking network?</h2>
+      <p id="rule" class="lede"></p>
+      <p class="note">This is a static audit of the model code. The result below was generated by <code>demo/audit.py</code>; it needs no
+        weights or data, so you can rerun it yourself with <code>python demo/audit.py</code> and check every line it reports.</p>
+      <div class="tblwrap"><table id="audit-sum"></table></div>
+      <div id="audit-detail"></div>
+    </div>
+  </section>
+
+  <!-- ============ 3. Budget ============ -->
+  <section class="panel" id="p-budget" role="tabpanel" hidden>
+    <div class="card">
+      <h2>Parameters, mult-adds and latency</h2>
+      <p class="note">Parameters and mult-adds (GMac, at 128×128) were counted from the PyTorch models with <code>torch.utils.flop_counter</code>,
+        attention matmuls included. Latency is measured <b>now, in your browser</b> (ONNX Runtime Web, CPU, batch 1, median of 5 runs). The spiking
+        model's numbers are T=8 dense passes on conventional hardware; this is not a neuromorphic-hardware measurement.</p>
+      <div class="row"><button class="btn primary" id="measure">Measure latency on this device</button><progress id="bprog" max="1" value="0" hidden></progress></div>
+      <div class="tblwrap" style="margin-top:10px"><table id="budget"></table></div>
+    </div>
+  </section>
+
+  <!-- ============ 4. Dynamics ============ -->
+  <section class="panel" id="p-dyn" role="tabpanel" hidden>
+    <div class="card">
+      <h2>The spiking network at work</h2>
+      <p class="note">Spikes per layer, membrane potentials, and the restoration building up over T=8 timesteps, replayed from activity recorded
+        from the released spiking checkpoint on real 1&nbsp;dB test images. Press <b>Play</b>.
+        <a href="spiking_dynamics.html">Open it full-screen</a>.</p>
+      <iframe class="dyn" id="dyn" title="Spiking LIMODENet dynamics" loading="lazy"></iframe>
+    </div>
+  </section>
+</main>
+
+<script src="web/demo_data.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/ort.min.js"></script>
+<script>
+(function () {
+  "use strict";
+  const D = window.LIMO_DEMO;
+  const $ = (id) => document.getElementById(id);
+  const H = 128, W = 128, N = 3 * H * W;
+  // Models come from the Hub; ?models=<base url> overrides (local testing).
+  const MODEL_BASE = new URLSearchParams(location.search).get("models") ||
+    "https://huggingface.co/ltdung/limodenet/resolve/main/onnx/";
+  ort.env.wasm.wasmPaths = "https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/";
+
+  if (!D) { $("status").textContent = "web/demo_data.js is missing; run demo/tools/export_web.py."; return; }
+  const M = Object.fromEntries(D.models.map(m => [m.name, m]));
+
+  // ---------------- tabs
+  document.querySelectorAll(".tab").forEach(t => t.onclick = () => {
+    document.querySelectorAll(".tab").forEach(x => x.setAttribute("aria-selected", x === t));
+    document.querySelectorAll(".panel").forEach(p => p.hidden = p.id !== t.dataset.panel);
+    if (t.dataset.panel === "p-dyn" && !$("dyn").src) $("dyn").src = "spiking_dynamics.html";
+  });
+
+  // ---------------- helpers
+  const fmtM = (n) => (n / 1e6).toFixed(3) + "M";
+  function badge(m) {
+    if (m.blocked === null) return '<span class="badge na">spiking: not audited</span>';
+    return m.blocked === 0 ? '<span class="badge ok">spiking-legal · 0 blocked</span>'
+                           : `<span class="badge bad">not spiking-legal · ${m.blocked} blocked</span>`;
+  }
+  function loadImage(src) {
+    return new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = src; });
+  }
+  // image -> Float32 CHW in [0,1]; 128x128 PNGs are drawn 1:1, uploads are resized
+  function toCHW(img) {
+    const c = document.createElement("canvas"); c.width = W; c.height = H;
+    const g = c.getContext("2d"); g.imageSmoothingQuality = "high"; g.drawImage(img, 0, 0, W, H);
+    const d = g.getImageData(0, 0, W, H).data, out = new Float32Array(N);
+    for (let i = 0; i < H * W; i++) { out[i] = d[4 * i] / 255; out[H * W + i] = d[4 * i + 1] / 255; out[2 * H * W + i] = d[4 * i + 2] / 255; }
+    return out;
+  }
+  function drawCHW(canvas, x, errRef) {
+    canvas.width = W; canvas.height = H;
+    const g = canvas.getContext("2d"), id = g.createImageData(W, H);
+    for (let i = 0; i < H * W; i++) for (let ch = 0; ch < 3; ch++) {
+      let v = Math.min(1, Math.max(0, x[ch * H * W + i]));
+      if (errRef) v = Math.min(1, Math.abs(v - errRef[ch * H * W + i]) * 5);
+      id.data[4 * i + ch] = Math.round(v * 255);
+    }
+    for (let i = 0; i < H * W; i++) id.data[4 * i + 3] = 255;
+    g.putImageData(id, 0, 0);
+  }
+  const clamp01 = (a) => { const o = new Float32Array(a.length); for (let i = 0; i < a.length; i++) o[i] = Math.min(1, Math.max(0, a[i])); return o; };
+  function sse(a, b) { let s = 0; for (let i = 0; i < a.length; i++) { const d = a[i] - b[i]; s += d * d; } return s; }
+  const psnr = (a, b) => 10 * Math.log10(a.length / sse(a, b));
+
+  // SSIM exactly as the paper's evaluation code: 11x11 Gaussian (sigma 1.5), zero padding,
+  // per channel, averaged over channels and pixels. The window is separable.
+  const GW = (() => { const g = []; let s = 0; for (let i = 0; i < 11; i++) { const c = i - 5, v = Math.exp(-(c * c) / (2 * 1.5 * 1.5)); g.push(v); s += v; } return g.map(v => v / s); })();
+  function blur(src) {
+    const tmp = new Float64Array(H * W), out = new Float64Array(H * W);
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      let s = 0; for (let k = -5; k <= 5; k++) { const xx = x + k; if (xx >= 0 && xx < W) s += GW[k + 5] * src[y * W + xx]; } tmp[y * W + x] = s;
+    }
+    for (let y = 0; y < H; y++) for (let x = 0; x < W; x++) {
+      let s = 0; for (let k = -5; k <= 5; k++) { const yy = y + k; if (yy >= 0 && yy < H) s += GW[k + 5] * tmp[yy * W + x]; } out[y * W + x] = s;
+    }
+    return out;
+  }
+  function ssim(a, b) {
+    const C1 = 0.01 ** 2, C2 = 0.03 ** 2, P = H * W; let tot = 0;
+    for (let ch = 0; ch < 3; ch++) {
+      const x = a.subarray(ch * P, (ch + 1) * P), y = b.subarray(ch * P, (ch + 1) * P);
+      const xx = new Float64Array(P), yy = new Float64Array(P), xy = new Float64Array(P);
+      for (let i = 0; i < P; i++) { xx[i] = x[i] * x[i]; yy[i] = y[i] * y[i]; xy[i] = x[i] * y[i]; }
+      const mx = blur(x), my = blur(y), sxx = blur(xx), syy = blur(yy), sxy = blur(xy);
+      for (let i = 0; i < P; i++) {
+        const mx2 = mx[i] * mx[i], my2 = my[i] * my[i], mxy = mx[i] * my[i];
+        tot += ((2 * mxy + C1) * (2 * (sxy[i] - mxy) + C2)) / ((mx2 + my2 + C1) * ((sxx[i] - mx2) + (syy[i] - my2) + C2));
+      }
+    }
+    return tot / (3 * P);
+  }
+
+  // ---------------- models
+  const sessions = {};
+  async function session(name, onStatus) {
+    if (!sessions[name]) {
+      onStatus && onStatus(`Downloading ${name} (${(M[name].onnx_bytes / 1e6).toFixed(1)} MB)…`);
+      sessions[name] = ort.InferenceSession.create(MODEL_BASE + M[name].onnx, { executionProviders: ["wasm"] });
+    }
+    return sessions[name];
+  }
+  // Returns {out: final image, steps: per-step running means (spiking only), ms}
+  async function restore(name, x, onStatus) {
+    const s = await session(name, onStatus), m = M[name];
+    const input = new ort.Tensor("float32", x, [1, 3, H, W]);
+    const t0 = performance.now();
+    if (!m.T) {
+      const r = await s.run({ input });
+      return { out: clamp01(r.output.data), ms: performance.now() - t0 };
+    }
+    // spiking: zero membranes, T timesteps, rate readout = mean of the step outputs
+    let mems = m.state.map(sh => new ort.Tensor("float32", new Float32Array(sh.reduce((a, b) => a * b, 1)), sh));
+    const acc = new Float32Array(N), steps = [];
+    for (let t = 0; t < m.T; t++) {
+      const feeds = { input }; mems.forEach((mm, i) => feeds["mem" + i] = mm);
+      const r = await s.run(feeds);
+      const y = r.output.data; for (let i = 0; i < N; i++) acc[i] += y[i];
+      const mean = new Float32Array(N); for (let i = 0; i < N; i++) mean[i] = acc[i] / (t + 1);
+      steps.push(clamp01(mean));
+      mems = m.state.map((_, i) => r["mem_out" + i]);
+    }
+    return { out: steps[m.T - 1], steps, ms: performance.now() - t0 };
+  }
+
+  // ---------------- restore tab
+  const state = { stem: D.samples[0].stem, upload: null };
+  const picker = $("picker");
+  D.samples.forEach(s => {
+    const b = document.createElement("button");
+    b.className = "pick"; b.title = s.stem.replace("_", " #"); b.setAttribute("aria-label", b.title);
+    b.innerHTML = `<img alt="" src="web/samples/${s.stem}_degraded.png" loading="lazy">`;
+    b.onclick = () => { state.stem = s.stem; state.upload = null; $("upload").value = ""; syncPicker(); };
+    picker.appendChild(b);
+  });
+  function syncPicker() {
+    document.querySelectorAll(".pick").forEach((b, i) => b.setAttribute("aria-pressed", !state.upload && D.samples[i].stem === state.stem));
+    $("sel-info").textContent = state.upload ? "Using your uploaded image (no clean reference, so no PSNR/SSIM)."
+                                             : `Selected: ${state.stem.replace("_", " #")}`;
+  }
+  $("upload").onchange = (e) => { const f = e.target.files[0]; if (f) { state.upload = f; syncPicker(); } };
+  const checks = $("checks");
+  D.models.forEach(m => {
+    const l = document.createElement("label");
+    l.innerHTML = `<input type="checkbox" value="${m.name}" ${m.default ? "checked" : ""}> ${m.name}`;
+    checks.appendChild(l);
+  });
+  const chosen = () => [...checks.querySelectorAll("input:checked")].map(i => i.value);
+  syncPicker();
+
+  let last = null;   // last restore, so the error-map toggle redraws without rerunning
+  function render() {
+    if (!last) return;
+    const err = $("errmap").checked && last.y ? last.y : null;
+    const res = $("results"); res.innerHTML = "";
+    const card = (title, sub, data, extra) => {
+      const d = document.createElement("div"); d.className = "res";
+      d.innerHTML = `<figure><canvas></canvas><figcaption><div class="nm">${title}</div>${sub}</figcaption></figure>`;
+      drawCHW(d.querySelector("canvas"), data, err);
+      if (extra) extra(d);
+      res.appendChild(d);
+    };
+    const mx = (o) => last.y ? `<div class="mx">${psnr(o, last.y).toFixed(2)} dB · SSIM ${ssim(o, last.y).toFixed(4)}</div>` : "";
+    card("Degraded input", mx(last.x), last.x);
+    last.outs.forEach(r => card(r.name, `${mx(r.out)}<div class="mx">${fmtM(M[r.name].params)} · ${r.ms.toFixed(0)} ms</div>${badge(M[r.name])}`,
+      r.out, r.steps ? (d) => {
+        const lab = document.createElement("div"); lab.className = "mx"; lab.textContent = `output after t = ${r.steps.length}/${r.steps.length}`;
+        const sl = document.createElement("input"); sl.type = "range"; sl.min = 1; sl.max = r.steps.length; sl.value = r.steps.length;
+        sl.setAttribute("aria-label", "Spiking timestep");
+        sl.oninput = () => {
+          const o = r.steps[sl.value - 1]; drawCHW(d.querySelector("canvas"), o, err);
+          lab.textContent = `output after t = ${sl.value}/${r.steps.length}` + (last.y ? ` · ${psnr(o, last.y).toFixed(2)} dB` : "");
+        };
+        d.querySelector("figcaption").append(lab, sl);
+      } : null));
+    if (last.y && !err) card("Clean reference", "", last.y);
+  }
+  $("errmap").onchange = render;
+
+  async function currentInput() {
+    if (state.upload) {
+      const url = URL.createObjectURL(state.upload);
+      const x = toCHW(await loadImage(url)); URL.revokeObjectURL(url);
+      return { x, y: null, title: "Your uploaded image" };
+    }
+    const [di, ci] = await Promise.all([loadImage(`web/samples/${state.stem}_degraded.png`), loadImage(`web/samples/${state.stem}_clean.png`)]);
+    return { x: toCHW(di), y: toCHW(ci), title: `${state.stem.replace("_", " #")} · real 1 dB/q100 DVB-S2X test image` };
+  }
+
+  $("run").onclick = async () => {
+    const names = chosen(); if (!names.length) { $("status").textContent = "Select at least one restorer."; return; }
+    $("run").disabled = true;
+    try {
+      const inp = await currentInput();
+      last = { ...inp, outs: [] }; $("res-title").textContent = inp.title;
+      for (const n of names) {
+        $("status").textContent = `Running ${n}…`;
+        const r = await restore(n, inp.x, (s) => $("status").textContent = s);
+        last.outs.push({ name: n, ...r }); render();
+      }
+      $("status").textContent = "Done. Tick the error-map box to see where each restorer is wrong.";
+    } catch (e) { $("status").textContent = "Error: " + e.message; console.error(e); }
+    $("run").disabled = false;
+  };
+
+  $("scoreall").onclick = async () => {
+    const names = chosen(); if (!names.length) return;
+    $("scoreall").disabled = true; const prog = $("prog"); prog.hidden = false; prog.value = 0;
+    try {
+      const pairs = [];
+      for (const s of D.samples) {
+        const [di, ci] = await Promise.all([loadImage(`web/samples/${s.stem}_degraded.png`), loadImage(`web/samples/${s.stem}_clean.png`)]);
+        pairs.push([toCHW(di), toCHW(ci)]);
+      }
+      const rows = [["Degraded input (no restoration)", pairs.map(p => p[0])]];
+      const total = names.length * pairs.length; let done = 0;
+      for (const n of names) {
+        const outs = [];
+        for (const [x] of pairs) { outs.push((await restore(n, x, (s) => $("status").textContent = s)).out); prog.value = ++done / total; }
+        rows.push([n, outs]);
+      }
+      const nPix = pairs.length * N;
+      let html = '<tr><th>Restorer</th><th class="num">Params</th><th class="num">PSNR (dB)</th><th class="num">SSIM</th><th>Spiking</th></tr>';
+      for (const [n, outs] of rows) {
+        let s = 0, ss = 0; outs.forEach((o, i) => { s += sse(o, pairs[i][1]); ss += ssim(o, pairs[i][1]); });
+        const m = M[n];
+        html += `<tr class="${n.startsWith("LIMODENet") || n.startsWith("Spiking") ? "ours" : ""}"><td>${n}</td><td class="num">${m ? fmtM(m.params) : ""}</td>` +
+                `<td class="num">${(10 * Math.log10(nPix / s)).toFixed(2)}</td><td class="num">${(ss / outs.length).toFixed(4)}</td><td>${m ? badge(m) : ""}</td></tr>`;
+      }
+      $("scoretab").innerHTML = html;
+      $("status").textContent = "Scored all 30 images.";
+    } catch (e) { $("status").textContent = "Error: " + e.message; console.error(e); }
+    prog.hidden = true; $("scoreall").disabled = false;
+  };
+
+  // ---------------- audit tab
+  $("rule").textContent = D.rule;
+  let ah = '<tr><th>Restorer</th><th class="num">Blocked ops</th><th>Kinds</th></tr>';
+  D.audit.forEach(a => {
+    const kinds = [...new Set(a.ops.map(o => o.cls))].sort().join(", ") || "–";
+    ah += `<tr><td>${a.model}</td><td class="num">${a.ops.length}</td><td>${kinds}</td></tr>`;
+  });
+  $("audit-sum").innerHTML = ah;
+  $("audit-detail").innerHTML = D.audit.filter(a => a.ops.length).map(a =>
+    `<details><summary>${a.model}: all ${a.ops.length} blocked operations</summary><div class="tblwrap"><table>
+      <tr><th>Module</th><th>Class</th><th>Why it is blocked</th></tr>` +
+    a.ops.map(o => `<tr><td><code>${o.module}</code></td><td><code>${o.cls}</code></td><td class="why">${o.why}</td></tr>`).join("") +
+    `</table></div></details>`).join("");
+
+  // ---------------- budget tab
+  function budgetTable(lat) {
+    let h = '<tr><th>Restorer</th><th class="num">Params</th><th class="num">GMac</th><th class="num">Latency (ms)</th><th>Spiking</th></tr>';
+    D.models.forEach(m => h += `<tr><td>${m.name}</td><td class="num">${fmtM(m.params)}</td><td class="num">${m.gmac.toFixed(3)}</td>` +
+      `<td class="num">${lat && lat[m.name] !== undefined ? lat[m.name].toFixed(0) : "–"}</td><td>${badge(m)}</td></tr>`);
+    $("budget").innerHTML = h;
+  }
+  budgetTable(null);
+  $("measure").onclick = async () => {
+    $("measure").disabled = true; const prog = $("bprog"); prog.hidden = false; prog.value = 0;
+    const lat = {}, x = new Float32Array(N).map(() => Math.random());
+    let k = 0;
+    for (const m of D.models) {
+      await restore(m.name, x);                      // warm-up (and download)
+      const ts = [];
+      for (let i = 0; i < 5; i++) ts.push((await restore(m.name, x)).ms);
+      ts.sort((a, b) => a - b); lat[m.name] = ts[2];
+      prog.value = ++k / D.models.length; budgetTable(lat);
+    }
+    prog.hidden = true; $("measure").disabled = false;
+  };
+})();
+</script>
+</body>
+</html>
