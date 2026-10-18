@@ -34,5 +34,29 @@
   "limodenet-tiny-eurosat-tinft.pth": {
     "sha256": "1ab077ed1557e7a34acdf9ad1bcd5bc5a1af08578e54649847058b1c3bc5b816",
     "bytes": 2802922
+  },
+  "limodenet-ae-1db100q-60ep.pth": {
+    "sha256": "c2ecc89eb8707a5c6569684dd8336ec436c7e016298fac780143940e361d5b18",
+    "bytes": 3106454
+  },
+  "baseline-cnn-ae-1db100q.pth": {
+    "sha256": "1105a72dc06221409fa092bf01193292dc17be02afadea5e5f3495ee5540c278",
+    "bytes": 3027894
+  },
+  "baseline-unet-1db100q.pth": {
+    "sha256": "1071f77fdc902c501dd128569eddd1d1ddc3ec8a30239a4557a3d1312662c764",
+    "bytes": 3039182
+  },
+  "baseline-dncnn-1db100q.pth": {
+    "sha256": "42a262c96660704fe3362656e7083d44f03bde7846636d7b34bd4eabb6719363",
+    "bytes": 2995090
+  },
+  "baseline-nafnet-lite-1db100q.pth": {
+    "sha256": "8a8f0ad4cefcbd80b3a34b4b55c8c91f90efe755da868ff8b223ccd5f9bab1a2",
+    "bytes": 3044695
+  },
+  "baseline-restormer-lite-1db100q.pth": {
+    "sha256": "4bfe591ce0ebf4e8da79b8caad4890ef021414b91c16c40c841bcd025b6982d1",
+    "bytes": 3103681
   }
 }

@@ -113,6 +113,21 @@ python scripts/download_weights.py --list          # see what's available
 python scripts/download_weights.py                  # everything, into weights/
 ```
 
+## Demo: check the paper's claims yourself
+
+Three ways in, from no install at all to the full app:
+
+| | What it shows | How to run |
+|---|---|---|
+| **Spiking dynamics** | The trained spiking LIMODENet-skip restoring real 1 dB images, timestep by timestep: spike rates per layer, spike maps, single-neuron rasters and membrane potentials, and the output building up over T=8 | Open [`demo/spiking_dynamics.html`](demo/spiking_dynamics.html) in a browser (works offline) |
+| **Spiking audit** | Every op of LIMODENet, NAFNet-lite and Restormer-lite checked against the conversion rule: **0 / 24 / 22 blocked** | `python demo/audit.py` (no weights, no data, no GPU) |
+| **Interactive app** | All eight restorers from the paper side by side on real DVB-S2X test images, with PSNR/SSIM, error maps, and a parameter/mult-add/latency budget measured on your machine | `pip install -e ".[demo,hub,spiking]"` then `python demo/app.py` |
+
+The app ships 30 real 1 dB/q100 test pairs (`demo/samples/`, three per class,
+seeded draw, not hand-picked) and downloads the checkpoints it needs from the
+Hub on first run. Numbers in the demo come from seed 0. The paper reports
+3-seed means on the full test split, so expect small differences.
+
 ## Architecture
 
 <p align="center">
@@ -132,6 +147,7 @@ limodenet/
 ├── blocks.py       # DWConv, PWMLP, LargeKernelBlock (Euler/Heun), FocalBlock
 ├── family.py        # classifier: nano/tiny/small/base/big presets
 ├── recon.py          # reconstructor: LIMODENet-AE + skip/depth4 kill-test cells
+├── baselines.py      # comparison restorers: CNN-AE, U-Net, DnCNN, NAFNet-lite, Restormer-lite
 ├── snn.py             # spiking classifier conversion (snntorch)
 └── snn_recon.py        # spiking reconstructor conversion (snntorch)
 scripts/
@@ -141,7 +157,12 @@ scripts/
 ├── evaluate.py
 └── download_weights.py
 demo/
-└── app.py            # Gradio demo (degrade -> restore -> classify)
+├── app.py                    # Gradio app: restore / spiking audit / budget
+├── audit.py                  # static spiking-conversion audit (CLI)
+├── spiking_dynamics.html     # recorded spiking dynamics, open in any browser
+├── spiking_dynamics_data.js  # its data (generated)
+├── samples/                  # 30 real 1 dB/q100 DVB-S2X test pairs
+└── tools/                    # export_samples.py, record_spiking_dynamics.py
 docs/
 └── REPRODUCING.md    # maps each paper table/figure to a script + config
 ```
@@ -149,24 +170,31 @@ docs/
 ## Weights
 
 Released on the [HuggingFace Hub](https://huggingface.co/ltdung/limodenet) under CC-BY-NC-4.0 (see
-`WEIGHTS_LICENSE.md`) — code stays MIT. Nine checkpoints, chosen to cover
-every architecture claim in the paper (the classifier family, the two
-released reconstructor variants, and both spiking conversions). Baseline
-checkpoints (CNN-AE, U-Net, NAFNet-lite, Restormer-lite, DnCNN) are not
-released, but are re-trainable from `scripts/train_reconstructor.py`'s
-configs listed in `docs/REPRODUCING.md`.
+`WEIGHTS_LICENSE.md`) — code stays MIT. The checkpoints cover every
+architecture claim in the paper: the classifier family, the reconstructor
+variants, both spiking conversions, and the iso-parameter comparison
+restorers of Table `tab:modern`, so the comparison can be checked rather than
+taken on trust. All restoration checkpoints are seed 0 of the paper's 60-epoch,
+val-selected protocol at 1 dB/q100; the headline column is the paper's 3-seed
+mean, and the last column is this seed on the full test split.
 
-| Name | Params | Headline number |
-|---|---|---|
-| `limodenet-nano-eurosat.pth` | 0.39M | 95.65 ± 0.23% (EuroSAT, scratch) |
-| `limodenet-small-eurosat.pth` | 1.55M | 96.93 ± 0.16% |
-| `limodenet-base-eurosat.pth` | 2.73M | 97.26 ± 0.17% |
-| `limodenet-tiny-eurosat-tinft.pth` | 0.69M | 98.26% (Tiny-ImageNet pretrained + FT) |
-| `limodenet-big-eurosat-tinft.pth` | 5.80M | 97.5–98.5% range (off-ladder) |
-| `limodenet-ae-1db100q.pth` | 0.77M | 37.39 ± 0.14 dB PSNR |
-| `limodenet-skip-ae-1db100q.pth` | 0.78M | 38.07 ± 0.26 dB PSNR |
-| `limodenet-spiking-classifier-t8.pth` | 0.69M | 93.55 ± 0.54% top-1, T=8 |
-| `limodenet-spiking-skip-recon-t8.pth` | 0.78M | 35.95 ± 0.05 dB PSNR, T=8 |
+| Name | Params | Headline number | Seed 0 |
+|---|---|---|---|
+| `limodenet-nano-eurosat.pth` | 0.39M | 95.65 ± 0.23% (EuroSAT, scratch) | |
+| `limodenet-small-eurosat.pth` | 1.55M | 96.93 ± 0.16% | |
+| `limodenet-base-eurosat.pth` | 2.73M | 97.26 ± 0.17% | |
+| `limodenet-tiny-eurosat-tinft.pth` | 0.69M | 98.26% (Tiny-ImageNet pretrained + FT) | |
+| `limodenet-big-eurosat-tinft.pth` | 5.80M | 97.5–98.5% range (off-ladder) | |
+| `limodenet-ae-1db100q-60ep.pth` | 0.77M | 37.39 ± 0.14 dB PSNR | 37.22 dB |
+| `limodenet-ae-1db100q.pth` | 0.77M | earlier 25-epoch run, kept for compatibility | 35.68 dB |
+| `limodenet-skip-ae-1db100q.pth` | 0.78M | 38.07 ± 0.26 dB PSNR | 38.32 dB |
+| `limodenet-spiking-classifier-t8.pth` | 0.69M | 93.55 ± 0.54% top-1, T=8 | |
+| `limodenet-spiking-skip-recon-t8.pth` | 0.78M | 35.95 ± 0.05 dB PSNR, T=8 | 35.91 dB |
+| `baseline-cnn-ae-1db100q.pth` | 0.75M | CNN-AE (bottleneck peer) | 35.84 dB |
+| `baseline-unet-1db100q.pth` | 0.75M | U-Net (skip reference) | 36.70 dB |
+| `baseline-dncnn-1db100q.pth` | 0.74M | DnCNN | 35.49 dB |
+| `baseline-nafnet-lite-1db100q.pth` | 0.75M | NAFNet-lite (unconstrained) | 38.34 dB |
+| `baseline-restormer-lite-1db100q.pth` | 0.77M | Restormer-lite (unconstrained) | 39.49 dB |
 
 ## Data
 

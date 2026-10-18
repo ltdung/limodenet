@@ -28,8 +28,12 @@ CHECKPOINTS = {
                      "(the paper's headline classifier, seed 0)"),
     "big":         ("limodenet-big-eurosat-tinft.pth", "classifier",
                      "big classifier, EuroSAT, Tiny-ImageNet-pretrained + fine-tuned (seed 0)"),
+    "ae-60ep":     ("limodenet-ae-1db100q-60ep.pth", "reconstructor",
+                     "LIMODENet-AE, 1dB/100q DVB-S2X restoration, the paper's 60-epoch "
+                     "protocol (seed 0, 37.22 dB)"),
     "ae":          ("limodenet-ae-1db100q.pth", "reconstructor",
-                     "LIMODENet-AE, 1dB/100q DVB-S2X restoration encoder-decoder (seed 0)"),
+                     "LIMODENet-AE, earlier 25-epoch run (seed 0, 35.68 dB); kept for "
+                     "compatibility, prefer ae-60ep"),
     "skip-ae":     ("limodenet-skip-ae-1db100q.pth", "reconstructor",
                      "LIMODENet-skip, same task, +additive skip connections (seed 0)"),
     "snn-clf":     ("limodenet-spiking-classifier-t8.pth", "spiking",
@@ -37,6 +41,17 @@ CHECKPOINTS = {
     "snn-skip-ae": ("limodenet-spiking-skip-recon-t8.pth", "spiking",
                      "spiking LIMODENet-skip reconstructor, T=8, end-to-end, "
                      "zero blocked operations"),
+    # iso-parameter comparison restorers of Table tab:modern (seed 0, 60 epochs)
+    "cnn-ae":      ("baseline-cnn-ae-1db100q.pth", "baseline",
+                     "CNN-AE, plain conv encoder + LIMODENet's decoder (bottleneck peer)"),
+    "unet":        ("baseline-unet-1db100q.pth", "baseline",
+                     "U-Net, skip-connection reference"),
+    "dncnn":       ("baseline-dncnn-1db100q.pth", "baseline",
+                     "DnCNN residual denoiser, depth 22"),
+    "nafnet":      ("baseline-nafnet-lite-1db100q.pth", "baseline",
+                     "NAFNet-lite, unconstrained modern restorer"),
+    "restormer":   ("baseline-restormer-lite-1db100q.pth", "baseline",
+                     "Restormer-lite, unconstrained modern restorer (softmax attention)"),
 }
 
 
@@ -45,7 +60,7 @@ def main():
                                   formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--model", choices=list(CHECKPOINTS), default=None,
                      help="download only this checkpoint")
-    ap.add_argument("--group", choices=["classifier", "reconstructor", "spiking"],
+    ap.add_argument("--group", choices=["classifier", "reconstructor", "spiking", "baseline"],
                      default=None, help="download only this group")
     ap.add_argument("--out-dir", default="weights", help="destination directory")
     ap.add_argument("--list", action="store_true", help="list available checkpoints and exit")

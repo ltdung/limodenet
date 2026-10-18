@@ -60,10 +60,16 @@ restored = model(degraded_images)   # (N, 3, 128, 128), values in [0, 1]
 | `limodenet-base-eurosat.pth` | classification | 2.73M | 97.26 ± 0.17% |
 | `limodenet-tiny-eurosat-tinft.pth` | classification | 0.69M | 98.26% (Tiny-ImageNet pretrained + fine-tuned) |
 | `limodenet-big-eurosat-tinft.pth` | classification | 5.80M | off-ladder legacy config, Tiny-ImageNet FT |
-| `limodenet-ae-1db100q.pth` | restoration | 0.77M | 37.39 ± 0.14 dB PSNR, 1dB/100q DVB-S2X |
+| `limodenet-ae-1db100q-60ep.pth` | restoration | 0.77M | 37.39 ± 0.14 dB PSNR, 1dB/100q DVB-S2X (this seed: 37.22) |
+| `limodenet-ae-1db100q.pth` | restoration | 0.77M | earlier 25-epoch run (this seed: 35.68 dB); kept for compatibility |
 | `limodenet-skip-ae-1db100q.pth` | restoration | 0.78M | 38.07 ± 0.26 dB PSNR, same condition |
 | `limodenet-spiking-classifier-t8.pth` | classification, spiking | 0.69M | 93.55 ± 0.54% top-1, T=8, ANN-init |
 | `limodenet-spiking-skip-recon-t8.pth` | restoration, spiking | 0.78M | 35.95 ± 0.05 dB PSNR, T=8, zero blocked ops |
+| `baseline-cnn-ae-1db100q.pth` | restoration, comparison | 0.75M | CNN-AE bottleneck peer (this seed: 35.84 dB) |
+| `baseline-unet-1db100q.pth` | restoration, comparison | 0.75M | U-Net skip reference (this seed: 36.70 dB) |
+| `baseline-dncnn-1db100q.pth` | restoration, comparison | 0.74M | DnCNN (this seed: 35.49 dB) |
+| `baseline-nafnet-lite-1db100q.pth` | restoration, comparison | 0.75M | NAFNet-lite, unconstrained (this seed: 38.34 dB) |
+| `baseline-restormer-lite-1db100q.pth` | restoration, comparison | 0.77M | Restormer-lite, unconstrained (this seed: 39.49 dB) |
 
 All classification numbers are on EuroSAT (10-class RGB land-use). All
 restoration numbers are on 1 dB $E_s/N_0$, JPEG quality 100 DVB-S2X-degraded
@@ -80,8 +86,13 @@ model.load_state_dict(torch.load("limodenet-tiny-eurosat-tinft.pth"))
 
 # Reconstructor
 from limodenet.recon import build_recon
-model = build_recon("limodenet_skip")   # or "limodenet" for the plain AE
+model = build_recon("limodenet_skip")   # or "limodenet" + limodenet-ae-1db100q-60ep.pth
 model.load_state_dict(torch.load("limodenet-skip-ae-1db100q.pth"))
+
+# Comparison restorers (Table tab:modern)
+from limodenet.baselines import build_baseline
+model = build_baseline("unet")          # cnn | unet | dncnn | nafnet | restormer
+model.load_state_dict(torch.load("baseline-unet-1db100q.pth"))
 
 # Spiking classifier (needs `pip install snntorch`)
 from limodenet.snn import SpikingLIMODENet

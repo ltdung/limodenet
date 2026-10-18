@@ -25,10 +25,16 @@ python scripts/train_reconstructor.py --variant limodenet_skip \
     --data /path/to/paired_1db_100q --epochs 60 --seed {0,1,2}
 ```
 `--variant limodenet_depth4` and `limodenet_skip_depth4` give the other two
-kill-test cells. The CNN-AE/U-Net baselines and NAFNet-lite/Restormer-lite
-are not included in this release (see the paper's supplementary for their
-architectures); a plain CNN-AE and skip U-Net are simple enough to
-reimplement directly if you want the full comparison.
+kill-test cells. The comparison restorers (CNN-AE, U-Net, DnCNN, NAFNet-lite,
+Restormer-lite) are defined in `limodenet/baselines.py` with their tiny-band
+shapes, and their seed-0 checkpoints are released (`download_weights.py
+--group baseline`). `scripts/train_reconstructor.py` trains the LIMODENet
+variants only; to retrain a baseline, use the same loop with
+`build_baseline(name)` in place of `build_recon(variant)`.
+
+`demo/app.py` scores every released restorer on the 30 shipped test pairs,
+and `demo/audit.py` reproduces the spiking-conversion audit (0 / 24 / 22
+blocked operations).
 
 Evaluate any trained checkpoint:
 ```bash
